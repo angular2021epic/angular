@@ -1,0 +1,46 @@
+
+<div *ngIf="this.overviewModel">
+
+  <div class="p-grid">
+
+          <div *ngIf="currentAnnouncement.announcementType != AnnouncementType.NOI">
+
+              <div *ngIf="this.overviewModel.publicationDate == null" class="p-col-12">
+
+                  <app-date-range-field [form]="f" fieldName="AnnouncementIssueDate"
+
+                                        [(fromDate)]="this.overviewModel.anticipatedPublicationFromDate"
+
+                                        [(toDate)]="this.overviewModel.anticipatedPublicationToDate" [defaultDate]="defaultDate"
+
+                                        (modelChange)="onAnnouncementIssueDateChange()" [pristineValidation]="false"
+
+                                        [validationRules]="validationRules.validDateRange"></app-date-range-field>
+
+              </div>
+
+              <div *ngIf="this.overviewModel.publicationDate != null" class="p-col-12">
+
+                  <app-date-range-field [form]="f" fieldName="AnnouncementIssueDate"
+
+                                        [(fromDate)]="this.overviewModel.publicationDate"
+
+                                        [defaultDate]="defaultDate" [disabled]="true"></app-date-range-field>
+
+              </div>
+          </div>
+  </div>
+
+  <div *ngIf="currentAnnouncement.announcementType != AnnouncementType.RFI">
+      <app-ann-deadlines [model]="this.overviewModel" #deadlines [f]="f" (onCopySuccess)="onCopySuccess()" [fnSave]="fnSave"
+
+                         [isCollapsedFieldset]="isCollapsedFieldset"></app-ann-deadlines>
+  </div>
+
+  <div *ngIf="currentAnnouncement.announcementType == AnnouncementType.RFI" >
+      <app-ann-submission-request-for-information [model]="this.overviewModel" [submissionRFIModel]="this.submissionRFIModel" #deadlines [f]="f" (onCopySuccess)="onCopySuccess()" [fnSave]="fnSave"
+
+                                              [isCollapsedFieldset]="isCollapsedFieldset"></app-ann-submission-request-for-information>
+
+  </div>
+</div>

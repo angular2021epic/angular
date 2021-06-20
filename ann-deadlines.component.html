@@ -1,0 +1,134 @@
+<fieldset [disabled]="!this._currentAnnouncement.canEdit">
+  <div *ngIf="!model.hasTopicAreas">
+      <ng-container [ngTemplateOutlet]="submissionDeadline"
+                    [ngTemplateOutletContext]="{topicArea: getDefaultTopicArea()}"></ng-container>
+  </div>
+
+  <div id="submissionDeadlineTab" class="sub-sections" *ngIf="model.hasTopicAreas">
+      <app-ann-topic-area-tab-view [contentTemplate]="submissionDeadline" [topicAreas]="this.model.announcementTopicAreas"
+                                   [hasTopicAreas]="this.model.hasTopicAreas" [(activeTopicArea)]="model.activeTopicArea" [fnSave]="fnSave"
+                                   [fnCopy]="fnCopy" (onCopy)="onCopy($event)" [form]="f">
+      </app-ann-topic-area-tab-view>
+  </div>
+
+  <ng-template #submissionDeadline let-topicArea="topicArea">
+      <div *ngIf="_currentAnnouncement.announcementType != AnnouncementType.NOI && _currentAnnouncement.announcementType != AnnouncementType.RFI">
+          <app-submission-info [activeTopicArea]="topicArea"
+                               [model]="this.model"
+                               #submission
+                               [f]="f">
+          </app-submission-info>
+      </div>
+
+      <div class="h-scroll-fieldset">
+          <div *ngIf="_currentAnnouncement.announcementType == AnnouncementType.NOTA || _currentAnnouncement.announcementType == AnnouncementType.FOA"
+               class="p-grid">
+              <div *ngIf="topicArea.willUseLOI" class="p-col-fixed" style="width:435px;">
+                  <app-date-range-field [class.dateChangeProcessing]="dateChangeProcessing"
+                                        [disabled]="!_currentAnnouncement.canEdit || topicArea.submissionDeadlineLOINotApplicable"
+                                        readonlyTime="5.00pm EST" [form]="f" fieldName="SubmissionDeadlineLOI"
+                                        [(fromDate)]="topicArea.submissionDeadlineLOIFrom"
+                                        [(toDate)]="topicArea.submissionDeadlineLOITo"
+                                        [disabled]="!_currentAnnouncement.canEdit || !model.willUseLOI"
+                                        [defaultDate]="defaultDate"
+                                        (modelChange)="onSubmissionDeadlineLOICalendarChange(topicArea)"></app-date-range-field>
+              </div>
+          </div>
+
+          <div class="p-grid">
+              <div *ngIf="topicArea.willUseConceptPapers" class="p-col-fixed" style="width:435px;">
+                  <app-date-range-field [form]="f" fieldName="SubmissionDeadlineCP"
+                                        [(fromDate)]="topicArea.submissionDeadlineCPFrom" [(toDate)]="topicArea.submissionDeadlineCPTo"
+                                        readonlyTime="5.00pm EST"
+                                        [defaultDate]="defaultDate"
+                                        (modelChange)="onSubmissionDeadlineCPCalendarChange(topicArea)"></app-date-range-field>
+              </div>
+          </div>
+
+          <div class="p-grid" *ngIf="_currentAnnouncement.announcementType != AnnouncementType.NOI">
+              <div *ngIf="_currentAnnouncement.announcementType != AnnouncementType.RFI" class="p-col-12">
+                  <app-date-range-field [form]="f" fieldName="SubmissionDeadlineFullApp"
+                                        [(fromDate)]="topicArea.submissionDeadlineFullAppFrom"
+                                        [defaultDate]="defaultDate"
+                                        [(toDate)]="topicArea.submissionDeadlineFullAppTo" readonlyTime="5.00pm EST">
+                  </app-date-range-field>
+              </div>
+          </div>
+
+          <div *ngIf="topicArea.fullAppCommentsAvailableList && topicArea.fullAppCommentsAvailableList[0].isSelected
+          && _currentAnnouncement.announcementType != AnnouncementType.NOI
+          && _currentAnnouncement.announcementType != AnnouncementType.RFI"
+               class="p-grid">
+               <div class="p-col-12">
+                 <app-date-range-field [form]="f" fieldName="ExpectedSubmissionDeadlineRIRC"
+                                        [(fromDate)]="topicArea.expectedReleaseDateRCFrom"
+                                        [defaultDate]="defaultDate"
+                                        [(toDate)]="topicArea.expectedReleaseDateRCTo" readonlyTime="5.00pm EST">
+                  </app-date-range-field>
+              </div>
+
+              <div class="p-col-fixed" style="width:435px;">
+                  <app-date-range-field [form]="f"
+                                        [disabled]="!_currentAnnouncement.canEdit || topicArea.expectedSubmissionDeadlineRRCNotApplicable"
+                                        fieldName="ExpectedSubmissionDeadlineRRC"
+                                        [(fromDate)]="topicArea.expectedSubmissionDeadlineRRCFrom"
+                                        [(toDate)]="topicArea.expectedSubmissionDeadlineRRCTo" readonlyTime="5.00pm EST"
+                                        [defaultDate]="defaultDate"
+                                        (modelChange)="onExpectedSubmissionDeadlineRRCCalendarChange(topicArea)"></app-date-range-field>
+              </div>
+          </div>
+
+          <div class="p-grid"
+               *ngIf="_currentAnnouncement.announcementType != AnnouncementType.NOI && _currentAnnouncement.announcementType != AnnouncementType.RFI">
+              <div class="p-col-12" *ngIf="model.hasTopicAreas">
+                  <app-date-range-field [form]="f"
+                                        (modelChange)="onExpectedSelectionNotificationDateChange(topicArea)"
+                                        fieldName="ExpectedSelectionNotificationDate"
+                                        [(fromDate)]="topicArea.expectedSelectionNotificationDateFrom"
+                                        [defaultDate]="defaultDate"
+                                        [(toDate)]="topicArea.expectedSelectionNotificationDateTo"></app-date-range-field>
+              </div>
+
+              <div class="p-col-12" *ngIf="!model.hasTopicAreas">
+                  <app-date-range-field [form]="f"
+                                        (modelChange)="onExpectedSelectionNotificationDateChange()"
+                                        fieldName="ExpectedSelectionNotificationDate"
+                                        [(fromDate)]="this.model.anticipatedSelectionFromDate"
+                                        [defaultDate]="defaultDate"
+                                        [(toDate)]="this.model.anticipatedSelectionToDate">
+                  </app-date-range-field>
+              </div>
+          </div>
+
+          <div class="p-grid"
+               *ngIf="_currentAnnouncement.announcementType != AnnouncementType.NOI && _currentAnnouncement.announcementType != AnnouncementType.RFI">
+              <div class="p-col-12" *ngIf="model.hasTopicAreas">
+                  <app-date-range-field [form]="f" (modelChange)="onAwardIssueTimeFrameChange(topicArea)"
+                                        fieldName="AwardIssueTimeFrame" [(fromDate)]="topicArea.awardIssueDateFrom"
+                                        [defaultDate]="defaultDate"
+                                        [(toDate)]="topicArea.awardIssueDateTo">
+                  </app-date-range-field>
+              </div>
+
+              <div class="p-col-12" *ngIf="!model.hasTopicAreas">
+                  <app-date-range-field [form]="f" (modelChange)="onAwardIssueTimeFrameChange()"
+                                        fieldName="AwardIssueTimeFrame"
+                                        [(fromDate)]="this.model.anticipatedAwardFromDate"
+                                        [defaultDate]="defaultDate"
+                                        [(toDate)]="this.model.anticipatedAwardToDate">
+                  </app-date-range-field>
+              </div>
+          </div>
+
+          <div class="p-grid"
+               *ngIf="_currentAnnouncement.announcementType != AnnouncementType.NOI && _currentAnnouncement.announcementType != AnnouncementType.RFI">
+              <div class="p-col-12">
+                  <app-text-field fieldName="AwardNegotiationTimeFrame"
+                                  label="Expected Timeframe for Award Negotiations:" [disabled]="true" [form]="f" ariaLabel="Award Negotiations Month Year"
+                                  [model]="topicArea.awardNegotiationsMonthYearFrom+topicArea.awardNegotiationsMonthYearTo">
+                  </app-text-field>
+              </div>
+          </div>
+      </div>
+  </ng-template>
+</fieldset>
